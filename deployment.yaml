@@ -15,7 +15,7 @@ spec:
         app: feedback
     spec:
       containers:
-      - name: feedback
+      - name: feedback-container
         image: pranav1706/feedback:latest  # Replace with your actual image
         ports:
         - containerPort: 80  # Change this if your frontend runs on a different port
