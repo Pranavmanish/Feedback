@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout your code from GitHub repository using GitHub credentials
-                git credentialsId: 'Github-cred', branch: 'main', url: 'https://github.com/your-username/your-repo.git'
+                git credentialsId: 'Github-cred', branch: 'main', url: 'https://github.com/Pranavmanish/Feedback.git'
             }
         }
 
