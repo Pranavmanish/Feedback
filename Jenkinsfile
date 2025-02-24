@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'your-dockerhub-username/your-app-name' // Replace with your Docker image name
-        K8S_NAMESPACE = 'your-namespace' // Replace with your Kubernetes namespace
+        DOCKER_IMAGE = 'pranav1706/feedback' // Replace with your Docker image name
+        K8S_NAMESPACE = 'default' // Replace with your Kubernetes namespace
     }
 
     stages {
