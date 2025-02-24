@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feedback
+  labels:
+    app: feedback
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: feedback
+  template:
+    metadata:
+      labels:
+        app: feedback
+    spec:
+      containers:
+      - name: feedback
+        image: pranav1706/feedback:latest  # Replace with your actual image
+        ports:
+        - containerPort: 80  # Change this if your frontend runs on a different port
