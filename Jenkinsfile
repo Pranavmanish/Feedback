@@ -1,14 +1,13 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'pranav1706/feedback' // Replace with your Docker image name
-        K8S_NAMESPACE = 'default' // Replace with your Kubernetes namespace
+        DOCKER_IMAGE_BASE = 'pranav1706/feedback' // Base Docker image name
+        K8S_NAMESPACE = 'default' // Kubernetes namespace
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout your code from GitHub repository using GitHub credentials
                 git credentialsId: 'Github-cred', branch: 'main', url: 'https://github.com/Pranavmanish/Feedback.git'
             }
         }
@@ -16,8 +15,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image
-                    sh "docker build -t $DOCKER_IMAGE ."
+                    def imageTag = "${DOCKER_IMAGE_BASE}:${env.BUILD_NUMBER}"
+                    def latestTag = "${DOCKER_IMAGE_BASE}:latest"
+                    
+                    // Build the Docker image with no cache to ensure updates
+                    sh "docker build --no-cache -t ${imageTag} ."
+                    sh "docker tag ${imageTag} ${latestTag}"
+                    
+                    // Save the image tag for the next stages
+                    env.DOCKER_IMAGE = imageTag
                 }
             }
         }
@@ -25,12 +31,13 @@ pipeline {
         stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    // Log in to DockerHub using credentials in Jenkins
                     withCredentials([usernamePassword(credentialsId: 'Dockerhub-cred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh "docker logout"
                         sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
 
-                        // Push the Docker image to DockerHub
-                        sh "docker push $DOCKER_IMAGE"
+                        // Push both versioned and latest images
+                        sh "docker push ${env.DOCKER_IMAGE}"
+                        sh "docker push ${DOCKER_IMAGE_BASE}:latest"
                     }
                 }
             }
@@ -39,9 +46,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Use the pre-configured Kubernetes credentials (kubeconfig) in Jenkins
                     withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                        // Apply the Kubernetes YAML files (deployment.yaml and service.yaml)
                         sh '''
                             kubectl --kubeconfig=$KUBECONFIG apply -f deployment.yaml --namespace=$K8S_NAMESPACE
                             kubectl --kubeconfig=$KUBECONFIG apply -f service.yaml --namespace=$K8S_NAMESPACE
@@ -54,12 +59,11 @@ pipeline {
         stage('Update Deployment with New Docker Image') {
             steps {
                 script {
-                    // Update the deployment with the new Docker image
                     withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                        sh '''
-                            kubectl --kubeconfig=$KUBECONFIG set image deployment/feedback feedback-container=$DOCKER_IMAGE --namespace=$K8S_NAMESPACE
+                        sh """
+                            kubectl --kubeconfig=$KUBECONFIG set image deployment/feedback feedback-container=${env.DOCKER_IMAGE} --namespace=$K8S_NAMESPACE
                             kubectl --kubeconfig=$KUBECONFIG rollout status deployment/feedback --namespace=$K8S_NAMESPACE
-                        '''
+                        """
                     }
                 }
             }
