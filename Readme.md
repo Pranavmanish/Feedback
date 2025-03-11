@@ -1,7 +1,7 @@
 SWE645 - Assignment 2
 -----------------------
 Overview:
-This repository contains the solution for SWE645 Assignment 2. The project involves containerizing a web application (from Homework 1 – Part 2) using Docker, deploying it on a Kubernetes cluster for scalability and resiliency, and setting up a CI/CD pipeline with GitHub and Jenkins.
+This repository contains the solution for SWE645 Assignment 2. The project involves containerizing a web application (from Homework 1 - Part 2) using Docker, deploying it on a Kubernetes cluster for scalability and resiliency, and setting up a CI/CD pipeline with GitHub and Jenkins.
 The repository includes the following key components:
 1.Dockerfile - Builds the Docker image for the web application.
 2.deployment.yaml - Kubernetes deployment configuration with three replicas.
@@ -10,10 +10,10 @@ The repository includes the following key components:
 5.feedback.html - The web application's source code (student survey form).
 ------------------------
 Group Members:
-Group Member 1: Containerization (Docker) and documentation.
-Group Member 2: Kubernetes deployment and service configuration.
-Group Member 3: CI/CD pipeline configuration using Jenkins.
-Group Member 4: Testing, debugging, and integration.
+Pranav Manish Reddi Madduri (G01504276): Containerization (Docker) and documentation.
+Lavanya Jillella(G01449670): Kubernetes deployment and service configuration.
+Sneha Rathi(G01449688): CI/CD pipeline configuration using Jenkins.
+Chennu Naga Venkata Sai(G01514409): Testing, debugging, and integration.
 -------------------------
 Prerequisites:
 Ensure you have the following installed:
@@ -30,19 +30,12 @@ Clone the repository:
 git clone <repository_url>
 cd <repository_directory>
 
-Build the Docker image using the provided Dockerfile:
-docker build -t pranav1706/feedback:latest .
-
-Check if the image is working correctly by typing: 
-docker run -it -p 8182:8080 pranav1706/feedback:latest
-
-Open a web browser and go to "http://localhost:8182/pranav1706/" to confirm that the application is running properly.
-
-Push the Docker image to your container registry:
-docker push pranav1706/feedback:latest
-
-Ensure your image is uploaded to Docker Hub "https://hub.docker.com/" by logging into Docker Hub and confirming its presence in your repository.You can also check for it in Docker Desktop on your local machine.
-Thus you have successfully generated a Docker Image and Pushed it to DockerHub.
+Build the Docker image using the provided Dockerfile:docker build -t pranav1706/feedback:latest .
+Check if the image is working correctly by typing: docker run -it -p 8182:8080 pranav1706/feedback:latest
+Open a web browser and go to "http://localhost:8182/pranav1706/" to check if the application runs properly.
+Push the Docker image to your container registry: docker push pranav1706/feedback:latest
+Ensure your image is uploaded to Docker Hub by logging into Docker Hub.We can also check for it in Docker Desktop on local machine.
+Now we have successfully generated a Docker Image and pushed it to DockerHub.
 ------------------------
 2. Kubernetes Deployment
 
@@ -67,28 +60,26 @@ Copy the code given there: sudo docker run --privileged -d --restart=unless-stop
 Run this command to view the current docker instance: sudo docker ps
 Copy the container ID: 29d579dcbdcc
 Go to Instance 1 -> click on the public IPv4 DNS address
-Rancher will open for the first time
-Copy the command given on the page and run on Instance 1 (Insert Container ID copied before in this command):
+Rancher will open for the first time and then Copy the command given on the page and run on Instance 1 (Insert Container ID copied before in this command):
 sudo docker logs  container-id  2>&1 | grep "Bootstrap Password:"
 Copy the password that appears after executing the command and paste it on the Rancher web page
 Create a new password for Rancher on the next page
-Rancher installation complete
+Thus Rancher is successfully installed.
 
 Creating a New Cluster:
-Go to Cluster Management and click on Create -> select RKE1 -> Custom -> Add cluster name and click next
+Go to Cluster Management and click on Create and then select RKE1 ,then Custom and Add cluster name and click next
 Click on the etcd, Control Plane and Worked check-boxes, then copy the command given below
 Run the copied command on Instance 2
 Once the command has finished execution, click the Done button in Rancher
 A provisioning cluster should appear in Rancher - wait till cluster is active
-Once active, go to Rancher home, then from the left menu, click on the cluster name
-Then select Workload -> Deployments -> Create
+Once active, go to Rancher home and click on the cluster name
+Then select Workload and then Deployments and Create
 Increase replicas to 3
 Container image name should be like: pranav1706/feedback:latest
 Give name to Deployment
-
-Click on Add Port -> Service Type should be Load Balancer -> Give a name to the Load Balancer -> Set private container port (8080)
-Click on Create -> Wait till active
-Once active, go to Service Discovery -> Services -> Click on the link
+Click on Add Port and Service Type should be Load Balancer and Give a name to the Load Balancer and Set private container port (8080)
+Click on Create, Wait until active
+Once active, go to Service Discovery and click on Services and Click on the link
 
 Update the image name in deployment.yaml if necessary.
 Deploy the application on your Kubernetes cluster:
@@ -97,12 +88,11 @@ kubectl apply -f service.yaml
 
 Verify the deployment:
 kubectl get pods
-
-You should see at least three pods running as specified.
+Atleast three pods must be running.
 -------------------------------------
 3. CI/CD Pipeline Setup with Jenkins
 
-Connect to Instance 1 via SSH and run the followig commands:
+Connect to Instance 1 via SSH and run the commands given below:
 sudo apt update
 sudo apt install openjdk-17-jdk
 java -version
@@ -113,25 +103,22 @@ sudo apt install jenkins
 systemctl status jenkins
 sudo ufw allow 8080
 
-
 Configuring Jenkins:
-Run the Instance 1 URL in an incognito Window
+Run the Instance 1 URL 
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword (you can get the initial Admin credentials to login to jenkins for the firstime)
 sudo apt install snapd
 sudo snap install kubectl --classic
-In Rancher click on your Cluster and then on ‘Kubeconfig File’ to download the Kubeconfig file
-
-
+In Rancher click on your Cluster and then on 'Kubeconfig File' to download the Kubeconfig file
 Open the browser and navigate to your instance's public IP address followed by port 8080 i.e :8080 (e.g. http://<elastic-ip>:8080).
-Log in to the Jenkins abnd Install the plugins from Manage Jenkins -> Plugins:
+Log in to the Jenkins and Install the plugins from Manage Jenkins and select Plugins:
 	GitHub plugin
 	Docker plugin
 	Build Timestamp plugin
 	Pipeline Stage View
 Then, Select Install to install the Plugins.
-Go to Manage Jenkins -> Credentials -> System -> Global credentials (unrestricted).
+Go to Manage Jenkins and click on Credentials,then select System and then Global credentials (unrestricted).
 Set Credential for GitHub and for Docker.
-provide the kubeconfig file downloded earlier to credentials as a secret file (you can directly upload it from your local storage)
+Provide the kubeconfig file downloded earlier to credentials as a secret file (you can directly upload it from your local storage)
 Click on New Item in the Jenkins Dashbord, enter name for the project and select 'Pipeline' and then Select Ok.
 In the configurations select Git hub project and provide repository url
 Select Poll SCM: and give * * * * * 
@@ -158,3 +145,4 @@ Jenkins link : http://52.203.38.107:8080/  (Username- pranav,password- pranav.17
 Github repo: https://github.com/Pranavmanish/Feedback
 
 Dockerhub repo: https://hub.docker.com/repository/docker/pranav1706/feedback/general
+

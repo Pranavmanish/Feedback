@@ -1,3 +1,9 @@
+# Group members:
+# Pranav Manish Reddi Madduri  G01504276
+# Lavanya Jillela G01449670
+# Sneha Rathi G01449688
+# Chennu Naga Venkata Sai G01514409
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
